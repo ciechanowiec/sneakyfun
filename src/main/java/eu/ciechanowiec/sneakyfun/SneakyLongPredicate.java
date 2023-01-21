@@ -43,7 +43,7 @@ public interface SneakyLongPredicate<X extends Exception> {
      *   // Functional method of the original interface `Function`:
      *      R apply(T t);
      *
-     *   // Functional method of the interface `SneakyFunction`:
+     *   // Functional method of the sneaky interface `SneakyFunction`:
      *      R apply(T input) throws X;
      *   </pre>
      *   </li>
