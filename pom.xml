@@ -1,0 +1,501 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>eu.ciechanowiec</groupId>
+  <artifactId>sneakyfun</artifactId>
+  <version>1.0.0</version>
+  <packaging>jar</packaging>
+
+  <name>Sneaky Fun</name>
+  <description>Java utility-library that makes lambda expressions look elegant via disabling enforcement of checked exceptions handling</description>
+  <url>https://github.com/ciechanowiec/sneakyfun</url>
+  <inceptionYear>2023</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>MIT No Attribution</name>
+      <url>https://spdx.org/licenses/MIT-0.html</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:ciechanowiec/sneakyfun.git</connection>
+    <developerConnection>scm:git:git@github.com:ciechanowiec/sneakyfun.git</developerConnection>
+    <tag>${project.artifactId}-${project.version}</tag>
+    <url>https://github.com/ciechanowiec/sneakyfun</url>
+  </scm>
+
+  <developers>
+    <developer>
+      <name>${project.developer.name}</name>
+      <email>${project.developer.email}</email>
+    </developer>
+  </developers>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/ciechanowiec/sneakyfun/issues</url>
+  </issueManagement>
+
+  <distributionManagement>
+    <repository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+    <snapshotRepository>
+      <id>ossrh</id>
+      <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
+
+  <properties>
+    <!-- Common -->
+    <project.developer.name>Herman Ciechanowiec</project.developer.name>
+    <project.developer.email>herman@ciechanowiec.eu</project.developer.email>
+    <!--  Building properties  -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>11</maven.compiler.release>
+    <max.jdk.version>11.9</max.jdk.version>
+    <!--  Dependencies  -->
+    <commons-lang3.version>3.12.0</commons-lang3.version>
+    <lombok.version>1.18.24</lombok.version>
+    <junit-jupiter-api.version>5.9.2</junit-jupiter-api.version>
+    <junit-jupiter-params.version>5.9.2</junit-jupiter-params.version>
+    <!-- Locking down Maven default plugins -->
+    <maven-clean-plugin.version>3.2.0</maven-clean-plugin.version>
+    <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
+    <maven-install-plugin.version>3.0.1</maven-install-plugin.version>
+    <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+    <maven-resources-plugin.version>3.3.0</maven-resources-plugin.version>
+    <maven-site-plugin.version>3.12.1</maven-site-plugin.version>
+    <maven-project-info-reports-plugin.version>3.4.1</maven-project-info-reports-plugin.version>
+    <!-- Basic plugins -->
+    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+    <maven-shade-plugin.version>3.4.0</maven-shade-plugin.version>
+    <maven-dependency-plugin.version>3.3.0</maven-dependency-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M7</maven-surefire-plugin.version>
+    <maven-failsafe-plugin.version>3.0.0-M7</maven-failsafe-plugin.version>
+    <maven-enforcer-plugin.version>3.1.0</maven-enforcer-plugin.version>
+    <min.maven.version>3.8.6</min.maven.version>
+    <versions-maven-plugin.version>2.12.0</versions-maven-plugin.version>
+    <jacoco-maven-plugin.version>0.8.8</jacoco-maven-plugin.version>
+    <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
+    <javadoc.destination.directory>${project.basedir}/docs</javadoc.destination.directory>
+    <build-helper-maven-plugin.version>3.3.0</build-helper-maven-plugin.version>
+    <!-- Release plugins -->
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-gpg-plugin.version>3.0.1</maven-gpg-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
+  </properties>
+
+  <dependencies>
+    <!-- Utils -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>${commons-lang3.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>${lombok.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- Testing -->
+    <dependency>
+      <!--  Basic JUnit library -->
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit-jupiter-api.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <!-- Parameterized JUnit tests -->
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
+      <version>${junit-jupiter-params.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <!-- Describes the directory where the resources are stored.
+             The path is relative to the POM -->
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+
+    <pluginManagement>
+      <!-- Lock down plugins versions to avoid using Maven
+           defaults from the default Maven super-pom -->
+      <plugins>
+        <plugin>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>${maven-clean-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>${maven-deploy-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-install-plugin</artifactId>
+          <version>${maven-install-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>${maven-jar-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-resources-plugin</artifactId>
+          <version>${maven-resources-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>${maven-site-plugin.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>${maven-project-info-reports-plugin.version}</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+
+    <plugins>
+      <!-- Allows to compile and build the program -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+      </plugin>
+      <!-- Processes resources -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-license-and-readme-to-jar</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-license-and-readme-to-javadoc</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${javadoc.destination.directory}</outputDirectory>
+            </configuration>
+          </execution>
+        </executions>
+        <configuration>
+          <resources>
+            <resource>
+              <directory>${project.basedir}</directory>
+              <includes>
+                <include>LICENSE.txt</include>
+                <include>README.adoc</include>
+              </includes>
+              <!-- To enable variables in the resources files
+                   (https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html): -->
+              <filtering>true</filtering>
+            </resource>
+          </resources>
+        </configuration>
+      </plugin>
+      <!-- Creates an uber-jar binary file with all
+           dependencies and resources inside -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>${maven-shade-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <manifestEntries>
+                    <!-- Creates an OSGi bundle -->
+                    <Bundle-Category>utilities</Bundle-Category>
+                    <Bundle-Description>${project.description}</Bundle-Description>
+                    <Bundle-DocURL>${project.url}</Bundle-DocURL>
+                    <Bundle-ManifestVersion>2</Bundle-ManifestVersion>
+                    <Bundle-Name>${project.name}</Bundle-Name>
+                    <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                    <Bundle-Vendor>${project.developer.name}</Bundle-Vendor>
+                    <Bundle-Version>${project.version}</Bundle-Version>
+                    <Export-Package>${project.groupId}.${project.artifactId};version="${project.version}"</Export-Package>
+                    <Require-Capability>osgi.ee;filter:="(&amp;(osgi.ee=JavaSE)(version=${maven.compiler.release}))"</Require-Capability>
+                  </manifestEntries>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Reports on unused dependencies: -->
+      <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-dependency-plugin</artifactId>
+          <version>${maven-dependency-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>analyze</goal>
+            </goals>
+            <phase>package</phase>
+          </execution>
+        </executions>
+        <configuration>
+          <ignoreNonCompile>true</ignoreNonCompile>
+        </configuration>
+      </plugin>
+      <!-- Prevents from building if unit tests don't pass
+           and fails the build if there are no tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${maven-surefire-plugin.version}</version>
+        <configuration>
+          <failIfNoTests>true</failIfNoTests>
+        </configuration>
+      </plugin>
+      <!-- Prevents from building if integration tests don't pass -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${maven-failsafe-plugin.version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Requires new Maven version -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>${maven-enforcer-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>[${min.maven.version},)</version>
+                </requireMavenVersion>
+              </rules>
+            </configuration>
+          </execution>
+          <execution>
+            <id>enforce-jdk-version</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>[${maven.compiler.release}, ${max.jdk.version}]</version>
+                  <message>The project requires JDK of ${maven.compiler.release} - ${max.jdk.version} version due to javadoc plugin bug</message>
+                </requireJavaVersion>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Reports on possible updates of dependencies and plugins -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>${versions-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>display-dependency-updates</goal>
+              <goal>display-plugin-updates</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Creates reports on tests coverage (target->site->jacoco->index.html).
+           Coverage enforcement isn't turned on in this project because Jacoco
+           produces false negative results in this regard -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>test</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Generates Javadoc -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>put-javadoc-in-docs-dir</id>
+            <phase>package</phase>
+            <goals>
+              <goal>javadoc</goal>
+            </goals>
+            <configuration>
+              <reportOutputDirectory>${javadoc.destination.directory}</reportOutputDirectory>
+              <destDir>/</destDir>
+            </configuration>
+          </execution>
+          <execution>
+            <id>put-javadoc-in-jar-archive</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <show>public</show>
+          <failOnError>false</failOnError>
+          <excludePackageNames>eu.ciechanowiec.test</excludePackageNames>
+          <!-- The line below fixes a bug with search present probably only until JDK 13
+               (https://stackoverflow.com/questions/52326318/maven-javadoc-search-redirects-to-undefined-url) -->
+          <additionalJOption>--no-module-directories</additionalJOption>
+          <bottom>
+            <![CDATA[
+            <p>
+            &nbsp&nbsp <i>${project.name},</i> v${project.version}
+            </p>
+            <p>
+            &nbsp&nbsp Copyright © ${project.inceptionYear}-${current.year} ${project.developer.name}
+            </p>
+            <p>
+            &nbsp&nbsp <a href="${project.url}">${project.url}</a>
+            </p>
+            ]]>
+          </bottom>
+        </configuration>
+      </plugin>
+      <!-- Gives timestamp build propery  -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>timestamp-property</id>
+            <goals>
+              <goal>timestamp-property</goal>
+            </goals>
+            <configuration>
+              <name>current.year</name>
+              <pattern>yyyy</pattern>
+              <locale>GB</locale>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <!-- Release procedure:
+    1. `mvn clean deploy -P release` -> will perform deploy and release
+    2. Add the following settings to ~/.m2/settings.xml:
+    ****
+    <settings>
+      <servers>
+        <server>
+          <id>ossrh</id>
+          <username>your-jira-id</username>
+          <password>your-jira-pwd</password>
+        </server>
+      </servers>
+    </settings>
+    ****
+    -->
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <!-- Creates a jar file with sources -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>${maven-source-plugin.version}</version>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>jar-no-fork</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Signs artifacts -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-gpg-plugin</artifactId>
+            <version>${maven-gpg-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>sign-artifacts</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sign</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <!-- Deploys to staging environment -->
+          <plugin>
+            <groupId>org.sonatype.plugins</groupId>
+            <artifactId>nexus-staging-maven-plugin</artifactId>
+            <version>${nexus-staging-maven-plugin.version}</version>
+            <extensions>true</extensions>
+            <configuration>
+              <serverId>ossrh</serverId>
+              <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+              <autoReleaseAfterClose>true</autoReleaseAfterClose>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

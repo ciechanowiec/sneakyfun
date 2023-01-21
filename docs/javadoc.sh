@@ -1,0 +1,1 @@
+/home/herman_ciechanowiec/.sdkman/candidates/java/11.0.16-tem/bin/javadoc --no-module-directories @options @packages

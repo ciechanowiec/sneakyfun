@@ -1,0 +1,9 @@
+*.class
+*.iml
+*.log
+.idea
+.vscode
+target
+# Compiled documentation:
+README.html
+README.pdf

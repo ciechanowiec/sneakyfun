@@ -1,0 +1,26 @@
+-classpath
+'/home/herman_ciechanowiec/.m2/repository/org/projectlombok/lombok/1.18.24/lombok-1.18.24.jar'
+-encoding
+'UTF-8'
+-public
+--release
+11
+-sourcepath
+'/home/herman_ciechanowiec/0_prog/sneakyfun/src/main/java:/home/herman_ciechanowiec/0_prog/sneakyfun/target/generated-sources/annotations'
+-author
+-bottom
+'<p>             &nbsp&nbsp <i>Sneaky Fun,</i> v1.0.0             </p>             <p>             &nbsp&nbsp Copyright © 2023-2023 Herman Ciechanowiec             </p>             <p>             &nbsp&nbsp <a href="https://github.com/ciechanowiec/sneakyfun">https://github.com/ciechanowiec/sneakyfun</a>             </p>'
+-charset
+'UTF-8'
+-d
+'/home/herman_ciechanowiec/0_prog/sneakyfun/docs'
+-docencoding
+'UTF-8'
+-doctitle
+'Sneaky Fun 1.0.0 API'
+-linkoffline
+'https://docs.oracle.com/en/java/javase/11/docs/api' '/home/herman_ciechanowiec/0_prog/sneakyfun/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'Sneaky Fun 1.0.0 API'

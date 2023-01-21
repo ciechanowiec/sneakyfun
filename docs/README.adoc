@@ -1,0 +1,256 @@
+[.text-justify]
+= 🥳 Sneaky Fun
+:reproducible:
+:doctype: article
+:author: Herman Ciechanowiec
+:email: herman@ciechanowiec.eu
+:chapter-signifier:
+:sectnums:
+:sectnumlevels: 5
+:sectanchors:
+:toc: left
+:toclevels: 5
+:icons: font
+:favicon: favicon.png
+
+ifndef::backend-pdf,env-github[]
+++++
+<style>
+p {
+    text-align: justify;
+    text-justify: inter-word;
+}
+img {
+    display: block;
+    margin: 0 auto;
+}
+.imageblock .title {
+    text-align: center;
+}
+::-webkit-scrollbar {
+    width: 12px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    box-shadow: 0 0 1px 1px #111;
+}
+::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 0.7px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb:active {
+    background: #eae9e9;
+}
+#footer {
+    background: #fff;
+}
+.admonitionblock>table td.content {
+    color: rgba(0,0,0,.8) !important;
+}
+</style>
+++++
+endif::[]
+
+== Overview
+_Sneaky Fun_ is a Java utility-library that makes lambda expressions look elegant via disabling enforcement of checked exceptions handling. To achieve that, the library provides enhanced analogues of all 44 functional interfaces from the `java.util.function` package and the `Runnable`. Those analogues could be used as a replacement everywhere, where usage of their counterparts is expected.
+
+_Sneaky Fun_ library is lightweight (~50 KB), doesn't have any dependencies and is published in Maven Central Repository.
+
+== Usage
+
+=== Without _Sneaky Fun_ & Unsightly
+
+Functional methods of functional interfaces from the `java.util.function` package and from the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot throw/propagate checked exceptions and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code:
+
+[source, java]
+----
+public static void main(String[] args) {
+    Function<String, URI> toURI = input -> { <1>
+        try {
+            return new URI(input); <2>
+        } catch (URISyntaxException exception) {
+            log.error("Unable to create a URI", exception);
+            return null; <3>
+        }
+    };
+    URI uri = toURI.apply("google.com");
+}
+----
+<1> Here implementation of a lambda expression starts.
+<2> Inside the lambda expression, a `public URI(String str)` constructor is used, which has a `throws` clause with a checked `URISyntaxException`. Since this is a checked exception within a lambda expression related to a functional interface from the `java.util.function` package, it must be handled within the same lambda expression, which causes boilerplate and unsightly code.
+<3> In the `catch` block, the caught checked `URISyntaxException` cannot be rethrown, since the execution occurs within a lambda expression related to a functional interface from the `java.util.function` package. Therefore, in most cases a `null` will be returned, which, in turn, can lead to `NullPointerException`++s++.
+
+=== With _Sneaky Fun_ & Elegantly
+
+_Sneaky Fun_ library disables enforcement of checked exceptions handling within lambda expressions related to functional interfaces from the `java.util.function` package so that those exceptions can be thrown within a lambda expression and propagated down the call stack. To achieve that, simply wrap implementation of a lambda expression into a static `sneaky(...)` method declared in the respective functional interface from _Sneaky Fun_ library.
+
+For example, in order to rewrite the above example with a `Function`, use a static `sneaky(...)` method declared in a `SneakyFunction`:
+
+[source, java]
+----
+import static eu.ciechanowiec.sneakyfun.SneakyFunction.sneaky;
+
+public static void main(String[] args) {
+    SneakyFunction<String, URI, URISyntaxException> toURI = URI::new; <1>
+    Function<String, URI> toURIAdapter = sneaky(toURI); <2>
+    URI uri = toURIAdapter.apply("google.com"); <3>
+}
+----
+<1> Implementation of a lambda expression assigned to a `SneakyFunction`, being an analogue of a usual `Function`. It uses `public URI(String str)` constructor, which has a `throws` clause with a checked `URISyntaxException`. However, thanks to _Sneaky Fun_ library, usage of that constructor doesn't enforce checked exception handling, hence unsafe.
+<2> A static `sneaky(...)` method declared in a `SneakyFunction` wraps the implementation of a lambda expression into an adapter, which is a usual `Function`. Now, the unsafe usage of `public URI(String str)` constructor, which has a `throws` clause with a checked `URISyntaxException`, is hidden inside the adapter being a usual `Function`.
+<3> Execution of a functional method of the adapter being a usual `Function` can be performed normally and no prior checked exception handling was enforced.
+
+=== In Streams
+
+_Sneaky Fun_ library in particularly useful in streams.
+
+For example, this is how conversion of raw URIs to pure URIs might look like in usual Java code:
+
+[source, java]
+----
+public static void main(String[] args) {
+    List<String> rawURIs = List.of("google.com", "ciechanowiec.eu");
+    List<URI> pureURIs = rawURIs.stream()
+                                .map(rawURI -> {
+                                    try {
+                                        return new URI(rawURI);
+                                    } catch (URISyntaxException exception) {
+                                        log.error("Unable to create a URI", exception);
+                                        return null;
+                                    }
+                                })
+                                .toList();
+}
+----
+
+With _Sneaky Fun_ library the code above can be significantly simplified and prettified:
+
+[source, java]
+----
+import static eu.ciechanowiec.sneakyfun.SneakyFunction.sneaky;
+
+public static void main(String[] args) {
+        List<String> rawURIs = List.of("google.com", "ciechanowiec.eu");
+        List<URI> pureURIs = rawURIs.stream()
+                                    .map(sneaky(URI::new))
+                                    .toList();
+}
+----
+
+== Maven Dependency
+To use _Sneaky Fun_ library, the following Maven dependency can be added to a project:
+
+[source, xml]
+----
+<dependency>
+  <groupId>eu.ciechanowiec</groupId>
+  <artifactId>sneakyfun</artifactId>
+  <version>1.0.0</version>
+</dependency>
+----
+
+== API Documentation
+Full API documentation of _Sneaky Fun_ library can be found at this link: https://www.ciechanowiec.eu/sneakyfun.
+
+== OSGi
+_Sneaky Fun_ library is built as an OSGi bundle, therefore it can be used in OSGi environment. Among others, it can be used within Adobe Experience Manager (AEM).
+
+== Internal Mechanism
+This section describes the principles upon which the internal mechanism of _Sneaky Fun_ library is based.
+
+=== Sneaky Type Inference
+During type inference, type variables denoted in a `throws` clause are treated as identifiers of an unchecked `RuntimeException`, even if the type variable actually identifies a checked `Exception` (see https://docs.oracle.com/javase/specs/jls/se17/html/jls-18.html[_Chapter 18. Type Inference_] of Java Language Specification). This allows to develop a `sneakilyThrow(...)` method that can throw a checked `Exception` _as if_ it was an unchecked `RuntimeException` and to omit enforcement of checked exceptions handling:
+
+[source, java]
+----
+class Thrower {
+
+    static<X extends Exception, T> T sneakilyThrow(Exception exceptionToThrow) throws X { <1>
+        throw (X) exceptionToThrow;
+    }
+
+    public static void main(String[] args) {
+        sneakilyThrow(new IOException()); <2>
+    }
+}
+----
+<1> The type variable `X` in the `throws` clause identifies a checked `Exception` and any type that extends a checked `Exception`, i.a. an unchecked `RuntimeException`. However, regardless of what actual type the `X` type variable identifies, during type inference the `X` type variable will be treated as an unchecked `RuntimeException`.
+<2> In this particular case, the actual type identified by the type variable `X` in the `throws` clause of the `sneakilyThrow(...)` method is a checked `IOException`, which normally must be handled. However, due to type inference specifics, that type variable is treated _as if_ it was an unchecked `RuntimeException`, although actually that's not true. Therefore, regardless of the fact that in this particular case the `sneakilyThrow(...)` method throws a checked `IOException`, handling of that exception isn't enforced, because it is treated as an unchecked `RuntimeException`.
+
+=== Sneaky Functional Interfaces
+As mentioned above, functional methods of functional interfaces from the `java.util.function` package and from the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot throw/propagate checked exceptions and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code.
+
+_Sneaky Fun_ library bypasses the enforcement of checked exceptions handling within lambda expressions via leveraging type inference specifics described in the section above. It is done in the following way:
+[upperalpha]
+. _Sneaky Fun_ library provides analogues (sneaky interfaces) of all 44 functional interfaces from the `java.util.function` package and the `Runnable` (original interfaces).
+. Sneaky interfaces are named exactly as their counterparts, but have a word `Sneaky` prepended. For example, for the original interface `Function`, there is an analogous sneaky interface named `SneakyFunction`.
+. Contrary to the original interfaces, declaration of functional methods of the sneaky interfaces all have a `throws` clause specified, that denotes a checked `Exception` and any type that extends a checked `Exception`. Therefore, implementations of functional methods of sneaky interfaces can throw/propagate checked exceptions.
++
+.Functional method declaration of a `Function`:
++
+[source, java]
+----
+@FunctionalInterface
+public interface Function<T, R> {
+
+    R apply(T t);
+}
+----
++
+.Functional method declaration of a `SneakyFunction`:
++
+[source, java]
+----
+@FunctionalInterface
+public interface SneakyFunction<T, R, X extends Exception> {
+
+    R apply(T input) throws X;
+}
+----
++
+.Usage comparison:
++
+[source, java]
+----
+public static void main(String[] args) {
+    Function<String, URI> originalToURI = URI::new; <1>
+    SneakyFunction<String, URI, URISyntaxException> sneakyToURI = URI::new; <2>
+}
+----
+<1> `public URI(String str)` constructor is used, which has a `throws` clause with a checked `URISyntaxException`. This expression _will not compile_, because the declaration of a functional method of a `Function` does not have a `throws` clause specified.
+<2> `public URI(String str)` constructor is used, which has a `throws` clause with a checked `URISyntaxException`. This expression _will compile_, because the declaration of a functional method of a `SneakyFunction` has a `throws` clause specified, that denotes a checked `Exception` and any type that extends a checked `Exception`.
+
+. Every sneaky interface has a static `sneaky(...)` method. It wraps the passed sneaky interface into an adapter, which is an analogous original interface. The method performs the wrapping by delegating the execution to the analogous original interface and rethrowing an exception via a `sneakilyThrow(...)` method in case such exception occurs. That way a checked exception becomes hidden inside the adapter. Execution of a functional method of the adapter can be performed normally and no prior checked exception handling is enforced, even if such exception might occur.
++
+.`sneaky(...)` method of a `SneakyFunction`:
+[source, java]
+----
+@FunctionalInterface
+public interface SneakyFunction<T, R, X extends Exception> {
+
+    R apply(T input) throws X;
+
+    static<T, R> Function<T, R> sneaky(SneakyFunction<T, R, ?> function) {
+        Objects.requireNonNull(function);
+        return input -> {
+            try {
+                return function.apply(input);
+            } catch (Exception exception) {
+                return Thrower.sneakilyThrow(exception);
+            }
+        };
+    }
+}
+----
+
+== License
+The program is subject to MIT No Attribution License
+
+Copyright © 2023 Herman Ciechanowiec
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so.
+
+The Software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the Software or the use or other dealings in the Software.
