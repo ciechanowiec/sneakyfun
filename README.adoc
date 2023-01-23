@@ -12,50 +12,12 @@
 :toclevels: 5
 :icons: font
 :favicon: favicon.png
-
-ifndef::backend-pdf,env-github[]
-++++
-<style>
-p {
-    text-align: justify;
-    text-justify: inter-word;
-}
-img {
-    display: block;
-    margin: 0 auto;
-}
-.imageblock .title {
-    text-align: center;
-}
-::-webkit-scrollbar {
-    width: 12px;
-    height: 10px;
-}
-::-webkit-scrollbar-track {
-    box-shadow: 0 0 1px 1px #111;
-}
-::-webkit-scrollbar-thumb {
-    border-radius: 3px;
-    box-shadow: inset 0 0 0 0.7px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: #f1f1f1;
-}
-::-webkit-scrollbar-thumb:active {
-    background: #eae9e9;
-}
-#footer {
-    background: #fff;
-}
-.admonitionblock>table td.content {
-    color: rgba(0,0,0,.8) !important;
-}
-</style>
-++++
-endif::[]
+:linkcss:
+:stylesdir: https://www.ciechanowiec.eu/linux_mantra/
+:stylesheet: adoc-css-style.css
 
 == Overview
-_Sneaky Fun_ is a Java utility-library that makes lambda expressions look elegant via disabling enforcement of checked exceptions handling. To achieve that, the library provides enhanced analogues of all 44 functional interfaces from the `java.util.function` package and from the `Runnable`. Those analogues could be used as a replacement everywhere, where usage of their counterparts is expected.
+_Sneaky Fun_ is a Java utility-library that makes lambda expressions look elegant via disabling enforcement of checked exceptions handling. To achieve that, the library provides enhanced analogues of all 44 functional interfaces from the `java.util.function` package and of the `Runnable`. Those analogues could be used as a replacement everywhere, where usage of their counterparts is expected.
 
 _Sneaky Fun_ library is lightweight (~50 KB), doesn't have any dependencies and is published in Maven Central Repository.
 
@@ -63,7 +25,7 @@ _Sneaky Fun_ library is lightweight (~50 KB), doesn't have any dependencies and 
 
 === Without _Sneaky Fun_ & Unsightly
 
-Functional methods of functional interfaces from the `java.util.function` package and from the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot propagate checked exceptions down the call stack and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code:
+Functional methods of functional interfaces from the `java.util.function` package and of the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot propagate checked exceptions down the call stack and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code:
 
 [source, java]
 ----
@@ -85,7 +47,7 @@ public static void main(String[] args) {
 
 === With _Sneaky Fun_ & Elegantly
 
-_Sneaky Fun_ library disables enforcement of checked exceptions handling within lambda expressions related to functional interfaces from the `java.util.function` package and from the `Runnable` so that those exceptions can be thrown within a lambda expression and propagated down the call stack. To achieve that, simply wrap implementation of a lambda expression into a static `sneaky(...)` method declared in the respective functional interface from _Sneaky Fun_ library.
+_Sneaky Fun_ library disables enforcement of checked exceptions handling within lambda expressions related to functional interfaces from the `java.util.function` package and of the `Runnable` so that those exceptions can be thrown within a lambda expression and propagated down the call stack. To achieve that, simply wrap implementation of a lambda expression into a static `sneaky(...)` method declared in the respective functional interface from _Sneaky Fun_ library.
 
 For example, in order to rewrite the above example with a `Function`, use a static `sneaky(...)` method declared in a `SneakyFunction`:
 
@@ -181,11 +143,11 @@ class Thrower {
 <2> In this particular case, the actual type identified by the type variable `X` in the `throws` clause of the `sneakilyThrow(...)` method is a checked `IOException`, which normally must be handled. However, due to type inference specifics, that type variable is treated _as if_ it was an unchecked `RuntimeException`, although actually that's not true. Therefore, regardless of the fact that in this particular case the `sneakilyThrow(...)` method throws a checked `IOException`, handling of that exception isn't enforced, because it is treated as an unchecked `RuntimeException`.
 
 === Sneaky Functional Interfaces
-As mentioned above, functional methods of functional interfaces from the `java.util.function` package and from the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot propagate checked exceptions down the call stack and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code.
+As mentioned above, functional methods of functional interfaces from the `java.util.function` package and of the `Runnable` don't have a `throws` clause specified. Therefore, implementations of those methods cannot propagate checked exceptions down the call stack and those exceptions must be handled within the implementation via a `try-catch` block. This leads to boilerplate and unsightly code.
 
 _Sneaky Fun_ library bypasses the enforcement of checked exceptions handling within lambda expressions via leveraging type inference specifics described in the section above. It is done in the following way:
 [upperalpha]
-. _Sneaky Fun_ library provides analogues (sneaky interfaces) of all 44 functional interfaces from the `java.util.function` package and from the `Runnable` (original interfaces).
+. _Sneaky Fun_ library provides analogues (sneaky interfaces) of all 44 functional interfaces from the `java.util.function` package and of the `Runnable` (original interfaces).
 . Sneaky interfaces are named exactly as their counterparts, but have a word `Sneaky` prepended. For example, for the original interface `Function`, there is an analogous sneaky interface named `SneakyFunction`.
 . Contrary to the original interfaces, declaration of functional methods of the sneaky interfaces all have a `throws` clause specified, that denotes a checked `Exception` and any type that extends a checked `Exception`. Therefore, implementations of functional methods of sneaky interfaces can throw and propagate checked exceptions down the call stack.
 +
