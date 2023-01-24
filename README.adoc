@@ -11,7 +11,9 @@
 :toc: left
 :toclevels: 5
 :icons: font
-:favicon: favicon.png
+// Docinfo is used for foldable TOC.
+// -> For full usage example see https://github.com/remkop/picocli
+:docinfo: shared,private
 :linkcss:
 :stylesdir: https://www.ciechanowiec.eu/linux_mantra/
 :stylesheet: adoc-css-style.css
