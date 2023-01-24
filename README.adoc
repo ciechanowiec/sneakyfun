@@ -17,6 +17,7 @@
 :linkcss:
 :stylesdir: https://www.ciechanowiec.eu/linux_mantra/
 :stylesheet: adoc-css-style.css
+:favicon: favicon.png
 
 == Overview
 _Sneaky Fun_ is a Java utility-library that makes lambda expressions look elegant via disabling enforcement of checked exceptions handling. To achieve that, the library provides enhanced analogues of all 44 functional interfaces from the `java.util.function` package and of the `Runnable`. Those analogues could be used as a replacement everywhere, where usage of their counterparts is expected.
