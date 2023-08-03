@@ -207,6 +207,8 @@
               <includes>
                 <include>LICENSE.txt</include>
                 <include>README.adoc</include>
+                <include>README-docinfo.html</include>
+                <include>README-docinfo-footer.html</include>
               </includes>
               <!-- To enable variables in the resources files
                    (https://maven.apache.org/plugins/maven-resources-plugin/examples/filter.html): -->
@@ -291,7 +293,7 @@
           </execution>
         </executions>
       </plugin>
-      <!-- Requires new Maven version -->
+      <!-- Requires new Maven version and certain JDK version -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
@@ -340,6 +342,52 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <dependencyExcludes>
+            <!-- Legacy versions in transient dependencies -->
+            <dependencyExclude>com.google.guava:guava</dependencyExclude>
+            <dependencyExclude>org.apache.commons:commons-lang3</dependencyExclude>
+          </dependencyExcludes>
+          <ruleSet>
+            <ignoreVersions>
+              <ignoreVersion>
+                <!-- Ignoring milestone versions, like 3.0.4-M5 and 1.0.0-m23 -->
+                <type>regex</type>
+                <version>(?i)[0-9].+-m[0-9]+</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring alpha versions, like 5.0.0.Alpha2 and 12.0.0.alpha3 -->
+                <type>regex</type>
+                <version>(?i).*ALPHA.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring alpha versions, like 5.0.0.Beta2 and 12.0.0.beta3 -->
+                <type>regex</type>
+                <version>(?i).*BETA.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring preview versions, like 12.1.0.jre11-preview -->
+                <type>regex</type>
+                <version>(?i).*PREVIEW.*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring candidate release versions, like 6.2.0.CR2 -->
+                <type>regex</type>
+                <version>(?i)[0-9].+\.CR[0-9]+</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring release candidate versions, like 2.15.0-rc1 and 1.8.20-RC -->
+                <type>regex</type>
+                <version>(?i)[0-9].+-rc[0-9]*</version>
+              </ignoreVersion>
+              <ignoreVersion>
+                <!-- Ignoring develop versions, like 15.0.0.Dev01 -->
+                <type>regex</type>
+                <version>(?i)[0-9].+\.dev[0-9]*</version>
+              </ignoreVersion>
+            </ignoreVersions>
+          </ruleSet>
+        </configuration>
       </plugin>
       <!-- Creates reports on tests coverage (target->site->jacoco->index.html).
            Coverage enforcement isn't turned on in this project because Jacoco
